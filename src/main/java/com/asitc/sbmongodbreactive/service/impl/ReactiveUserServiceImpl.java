@@ -17,12 +17,17 @@ public class ReactiveUserServiceImpl implements ReactiveUserService {
 	private ReactiveUserRepository repository;
 
 	@Override
-	public Flux<User> findUsersByName(String name) {
+	public Mono<User> findUserById(final String id) {
+		return this.repository.findById(id);
+	}
+	
+	@Override
+	public Flux<User> findUsersByName(final String name) {
 		return this.repository.findByName(name);
 	}
 
 	@Override
-	public Mono<User> create(User user) {
+	public Mono<User> create(final User user) {
 		return this.repository.save(user);
 	}
 

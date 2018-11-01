@@ -1,13 +1,17 @@
 package com.asitc.sbmongodbreactive.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.asitc.sbmongodbreactive.controller.dto.UserDTO;
 import com.asitc.sbmongodbreactive.repository.user.entity.User;
@@ -26,16 +30,33 @@ class ReactiveUserController {
 	@Autowired
 	private MapperFacade mapper;
 
+	@GetMapping("/{id}")
+	public ResponseEntity<Mono<UserDTO>> /*Mono<ServerResponse>*/ findById(final @PathVariable String id) {
+		Mono<UserDTO> result = service.findUserById(id).switchIfEmpty(Mono.error(new Exception())).map(u -> this.mapper.map(u, UserDTO.class));
+		return new ResponseEntity<>(result, HttpStatus.OK);
+//        return ServerResponse.ok()
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .body(result, UserDTO.class)
+//                .switchIfEmpty(ServerResponse.notFound().build())
+//                .onErrorResume(Exception.class, e -> ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+	}	
+	
 	@GetMapping
-	Flux<UserDTO> findByNameReactive(final @RequestParam String name) {
-		Flux<User> result = service.findUsersByName(name);
-		return result.map(u -> this.mapper.map(u, UserDTO.class));
+	Mono<ServerResponse> findByName(final @RequestParam String name) {
+		Flux<UserDTO> result = service.findUsersByName(name).map(u -> this.mapper.map(u, UserDTO.class));
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result, UserDTO.class)
+                .onErrorResume(Exception.class, e -> ServerResponse.notFound().build());
 	}
 
 	@PostMapping
-	Mono<UserDTO> createReactive(final @RequestBody UserDTO userDto) {
-		Mono<User> result = service.create(this.mapper.map(userDto, User.class));
-		return result.map(u -> this.mapper.map(u, UserDTO.class));
+	Mono<ServerResponse> create(final @RequestBody UserDTO userDto) {
+		Mono<UserDTO> result = service.create(this.mapper.map(userDto, User.class)).map(u -> this.mapper.map(u, UserDTO.class));
+		return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result, UserDTO.class)
+                .onErrorResume(Exception.class, e -> ServerResponse.notFound().build());
 	}
 
 }
