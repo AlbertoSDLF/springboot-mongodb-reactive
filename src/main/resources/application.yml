@@ -1,0 +1,8 @@
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include: beans,env,health,httptrace,info,mappings,metrics
+  server:
+    port: 8081
