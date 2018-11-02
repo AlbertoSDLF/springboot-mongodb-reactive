@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SbMongodbReactiveRepositoryUnitTest {
+public class RepositoryUnitTests {
 
 	@Autowired
 	ReactiveUserRepository repository;
@@ -38,27 +38,15 @@ public class SbMongodbReactiveRepositoryUnitTest {
 	}
 
 	@Test
-	public void findByNameAndEmaillWithStringQueryTest() {
-		User user = repository.findByNameAndEmail("User 1", "user1@domain.co.uk").block();
-		assertThat(user).isNotNull();
-	}
-
-	@Test
-	public void findByNameAndImageUrlWithMonoQueryTest() {
-		User user = repository.findByNameAndEmail(Mono.just("User 1"), "user1@domain.co.uk").block();
-		assertThat(user).isNotNull();
-	}
-
-	@Test
-	public void findByNameWithStringQueryTest() {
+	public void findByName() {
 		List<User> users = repository.findByName("User 1").collectList().block();
 		assertThat(users).hasSize(1);
 	}
 
 	@Test
-	public void findByNameWithMonoQueryTest() {
-		List<User> users = repository.findByName(Mono.just("User 1")).collectList().block();
-		assertThat(users).hasSize(1);
+	public void findByNameAndEmail() {
+		User user = repository.findByNameAndEmail("User 1", "user1@domain.co.uk").block();
+		assertThat(user).isNotNull();
 	}
 
 }

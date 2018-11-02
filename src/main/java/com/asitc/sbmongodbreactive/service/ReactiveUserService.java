@@ -11,6 +11,8 @@ public interface ReactiveUserService {
 
 	Flux<User> findUsersByName(String name);
 
-	Mono<User> create(User user);
+	Mono<User> createUser(Mono<User> user);
+
+	Flux<User> createUsers(Flux<User> user);
 
 }
